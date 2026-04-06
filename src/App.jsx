@@ -59,39 +59,60 @@ function cls(...items) {
   return items.filter(Boolean).join(" ");
 }
 
-function StatCard({ label, value, icon: Icon, trend, subtle }) {
+function StatCard({ label, value, icon: Icon, trend, subtle, darkMode }) {
   const positive = trend >= 0;
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900/70">
+    <div
+      className={cls(
+        "rounded-3xl border p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md",
+        darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+      )}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
-          <h3 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{value}</h3>
+          <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>{label}</p>
+          <h3 className={cls("mt-2 text-2xl font-semibold", darkMode ? "text-white" : "text-slate-900")}>
+            {value}
+          </h3>
 
           {typeof trend === "number" && (
-            <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <div
+              className={cls(
+                "mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
+                darkMode ? "bg-slate-800 text-slate-200" : "bg-slate-100 text-slate-700"
+              )}
+            >
               {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
               {Math.abs(trend)}% vs last month
             </div>
           )}
 
-          {subtle && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{subtle}</p>}
+          {subtle && (
+            <p className={cls("mt-2 text-xs", darkMode ? "text-slate-400" : "text-slate-500")}>{subtle}</p>
+          )}
         </div>
 
-        <div className="rounded-2xl bg-slate-100 p-3 dark:bg-slate-800">
-          <Icon className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+        <div className={cls("rounded-2xl p-3", darkMode ? "bg-slate-800" : "bg-slate-100")}>
+          <Icon className={cls("h-5 w-5", darkMode ? "text-slate-200" : "text-slate-700")} />
         </div>
       </div>
     </div>
   );
 }
 
-function EmptyState({ title, description }) {
+function EmptyState({ title, description, darkMode }) {
   return (
-    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 text-center dark:border-slate-700 dark:bg-slate-900/60">
-      <p className="text-lg font-semibold text-slate-900 dark:text-white">{title}</p>
-      <p className="mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">{description}</p>
+    <div
+      className={cls(
+        "flex min-h-[220px] flex-col items-center justify-center rounded-3xl border border-dashed px-6 text-center",
+        darkMode ? "border-slate-700 bg-slate-900/60" : "border-slate-300 bg-slate-50"
+      )}
+    >
+      <p className={cls("text-lg font-semibold", darkMode ? "text-white" : "text-slate-900")}>{title}</p>
+      <p className={cls("mt-2 max-w-md text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
+        {description}
+      </p>
     </div>
   );
 }
@@ -130,12 +151,6 @@ function App() {
       );
     }
   }, [transactions]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (darkMode) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [darkMode]);
 
   const categories = useMemo(() => {
     return ["all", ...Array.from(new Set(transactions.map((t) => t.category)))];
@@ -358,7 +373,12 @@ function App() {
   };
 
   return (
-    <div className={cls("min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-white")}>
+    <div
+      className={cls(
+        "min-h-screen transition-colors",
+        darkMode ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-900"
+      )}
+    >
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 rounded-[32px] border border-white/20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -373,7 +393,7 @@ function App() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setDarkMode((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/20"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur hover:bg-white/20"
             >
               {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               {darkMode ? "Light" : "Dark"} mode
@@ -384,12 +404,8 @@ function App() {
               onChange={(e) => setRole(e.target.value)}
               className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-sm text-white outline-none backdrop-blur"
             >
-              <option className="text-slate-900" value="viewer">
-                Viewer
-              </option>
-              <option className="text-slate-900" value="admin">
-                Admin
-              </option>
+              <option className="text-slate-900" value="viewer">Viewer</option>
+              <option className="text-slate-900" value="admin">Admin</option>
             </select>
           </div>
         </div>
@@ -401,6 +417,7 @@ function App() {
             icon={Wallet}
             trend={12}
             subtle="Net of all income and expenses"
+            darkMode={darkMode}
           />
           <StatCard
             label="Income"
@@ -408,6 +425,7 @@ function App() {
             icon={TrendingUp}
             trend={8}
             subtle="All tracked inflows"
+            darkMode={darkMode}
           />
           <StatCard
             label="Expenses"
@@ -415,6 +433,7 @@ function App() {
             icon={Receipt}
             trend={-3}
             subtle="All tracked outflows"
+            darkMode={darkMode}
           />
           <StatCard
             label="Current Role"
@@ -425,15 +444,21 @@ function App() {
                 ? "Can add, edit, and remove transactions"
                 : "Read-only access enabled"
             }
+            darkMode={darkMode}
           />
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70 xl:col-span-2">
+          <div
+            className={cls(
+              "rounded-3xl border p-5 shadow-sm xl:col-span-2",
+              darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+            )}
+          >
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Balance Trend</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
                   Running balance after each transaction.
                 </p>
               </div>
@@ -450,11 +475,7 @@ function App() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 12 }}
-                      interval="preserveStartEnd"
-                    />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} interval="preserveStartEnd" />
                     <YAxis />
                     <Tooltip formatter={(value) => currency.format(value)} />
                     <Area
@@ -471,14 +492,20 @@ function App() {
               <EmptyState
                 title="No trend data yet"
                 description="Add transactions to render the balance trend chart."
+                darkMode={darkMode}
               />
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70">
+          <div
+            className={cls(
+              "rounded-3xl border p-5 shadow-sm",
+              darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+            )}
+          >
             <div className="mb-4">
               <h2 className="text-lg font-semibold">Spending Breakdown</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
                 Expense distribution by category.
               </p>
             </div>
@@ -508,17 +535,23 @@ function App() {
               <EmptyState
                 title="No expense data"
                 description="Add expense transactions to see where the money is going."
+                darkMode={darkMode}
               />
             )}
           </div>
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70 xl:col-span-2">
+          <div
+            className={cls(
+              "rounded-3xl border p-5 shadow-sm xl:col-span-2",
+              darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+            )}
+          >
             <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Transactions</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
                   Search, sort, and filter financial activity.
                 </p>
               </div>
@@ -526,13 +559,23 @@ function App() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={exportCsv}
-                  className="rounded-2xl border border-slate-200 px-3 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+                  className={cls(
+                    "rounded-2xl border px-3 py-2 text-sm",
+                    darkMode
+                      ? "border-slate-700 hover:bg-slate-800"
+                      : "border-slate-200 hover:bg-slate-100"
+                  )}
                 >
                   Export CSV
                 </button>
                 <button
                   onClick={exportJson}
-                  className="rounded-2xl border border-slate-200 px-3 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+                  className={cls(
+                    "rounded-2xl border px-3 py-2 text-sm",
+                    darkMode
+                      ? "border-slate-700 hover:bg-slate-800"
+                      : "border-slate-200 hover:bg-slate-100"
+                  )}
                 >
                   Export JSON
                 </button>
@@ -546,14 +589,24 @@ function App() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search by description, category, type..."
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-10 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-400 dark:border-slate-700 dark:bg-slate-950"
+                  className={cls(
+                    "w-full rounded-2xl border px-10 py-2.5 text-sm outline-none placeholder:text-slate-400",
+                    darkMode
+                      ? "border-slate-700 bg-slate-950 text-white"
+                      : "border-slate-200 bg-white text-slate-900"
+                  )}
                 />
               </div>
 
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className={cls(
+                  "rounded-2xl border px-3 py-2.5 text-sm",
+                  darkMode
+                    ? "border-slate-700 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-900"
+                )}
               >
                 <option value="all">All types</option>
                 <option value="income">Income</option>
@@ -563,7 +616,12 @@ function App() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className={cls(
+                  "rounded-2xl border px-3 py-2.5 text-sm",
+                  darkMode
+                    ? "border-slate-700 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-900"
+                )}
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
@@ -577,7 +635,12 @@ function App() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className={cls(
+                  "rounded-2xl border px-3 py-2.5 text-sm",
+                  darkMode
+                    ? "border-slate-700 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-900"
+                )}
               >
                 <option value="date-desc">Newest first</option>
                 <option value="date-asc">Oldest first</option>
@@ -590,12 +653,23 @@ function App() {
               <EmptyState
                 title="No transactions yet"
                 description="Add your first transaction to start tracking activity."
+                darkMode={darkMode}
               />
             ) : filteredTransactions.length ? (
-              <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800">
+              <div
+                className={cls(
+                  "overflow-hidden rounded-3xl border",
+                  darkMode ? "border-slate-800" : "border-slate-200"
+                )}
+              >
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
-                    <thead className="bg-slate-50 dark:bg-slate-900">
+                  <table
+                    className={cls(
+                      "min-w-full divide-y text-sm",
+                      darkMode ? "divide-slate-800" : "divide-slate-200"
+                    )}
+                  >
+                    <thead className={darkMode ? "bg-slate-900" : "bg-slate-50"}>
                       <tr>
                         <th className="px-4 py-3 text-left font-medium text-slate-500">Date</th>
                         <th className="px-4 py-3 text-left font-medium text-slate-500">Description</th>
@@ -606,9 +680,19 @@ function App() {
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-950">
+                    <tbody
+                      className={cls(
+                        "divide-y",
+                        darkMode
+                          ? "divide-slate-800 bg-slate-950"
+                          : "divide-slate-200 bg-white"
+                      )}
+                    >
                       {filteredTransactions.map((transaction) => (
-                        <tr key={transaction.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
+                        <tr
+                          key={transaction.id}
+                          className={darkMode ? "hover:bg-slate-900/60" : "hover:bg-slate-50"}
+                        >
                           <td className="px-4 py-3">{transaction.date}</td>
                           <td className="px-4 py-3 font-medium">{transaction.description}</td>
                           <td className="px-4 py-3">{transaction.category}</td>
@@ -617,8 +701,8 @@ function App() {
                               className={cls(
                                 "rounded-full px-2.5 py-1 text-xs font-medium",
                                 transaction.type === "income"
-                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                                  : "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-rose-100 text-rose-700"
                               )}
                             >
                               {transaction.type}
@@ -628,8 +712,8 @@ function App() {
                             className={cls(
                               "px-4 py-3 text-right font-semibold",
                               transaction.type === "income"
-                                ? "text-emerald-600 dark:text-emerald-400"
-                                : "text-rose-600 dark:text-rose-400"
+                                ? "text-emerald-500"
+                                : "text-rose-500"
                             )}
                           >
                             {transaction.type === "income" ? "+" : "-"}
@@ -640,14 +724,20 @@ function App() {
                               <button
                                 onClick={() => handleEdit(transaction)}
                                 disabled={role !== "admin"}
-                                className="rounded-xl border border-slate-200 p-2 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700"
+                                className={cls(
+                                  "rounded-xl border p-2 disabled:cursor-not-allowed disabled:opacity-40",
+                                  darkMode ? "border-slate-700" : "border-slate-200"
+                                )}
                               >
                                 <Pencil className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => handleDelete(transaction.id)}
                                 disabled={role !== "admin"}
-                                className="rounded-xl border border-slate-200 p-2 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700"
+                                className={cls(
+                                  "rounded-xl border p-2 disabled:cursor-not-allowed disabled:opacity-40",
+                                  darkMode ? "border-slate-700" : "border-slate-200"
+                                )}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -663,12 +753,18 @@ function App() {
               <EmptyState
                 title="No matching transactions"
                 description="Try adjusting search or filters, or add a new transaction if you are in Admin mode."
+                darkMode={darkMode}
               />
             )}
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70">
+            <div
+              className={cls(
+                "rounded-3xl border p-5 shadow-sm",
+                darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+              )}
+            >
               <div className="mb-4 flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 <h2 className="text-lg font-semibold">
@@ -680,6 +776,7 @@ function App() {
                 <EmptyState
                   title="Viewer mode enabled"
                   description="Switch to Admin to add, edit, or delete transactions."
+                  darkMode={darkMode}
                 />
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-3">
@@ -687,7 +784,12 @@ function App() {
                     value={form.description}
                     onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
                     placeholder="Description"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    className={cls(
+                      "w-full rounded-2xl border px-3 py-2.5 text-sm",
+                      darkMode
+                        ? "border-slate-700 bg-slate-950 text-white"
+                        : "border-slate-200 bg-white text-slate-900"
+                    )}
                   />
 
                   <div className="grid grid-cols-2 gap-3">
@@ -695,14 +797,24 @@ function App() {
                       type="date"
                       value={form.date}
                       onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className={cls(
+                        "w-full rounded-2xl border px-3 py-2.5 text-sm",
+                        darkMode
+                          ? "border-slate-700 bg-slate-950 text-white"
+                          : "border-slate-200 bg-white text-slate-900"
+                      )}
                     />
                     <input
                       type="number"
                       value={form.amount}
                       onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
                       placeholder="Amount"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className={cls(
+                        "w-full rounded-2xl border px-3 py-2.5 text-sm",
+                        darkMode
+                          ? "border-slate-700 bg-slate-950 text-white"
+                          : "border-slate-200 bg-white text-slate-900"
+                      )}
                     />
                   </div>
 
@@ -710,7 +822,12 @@ function App() {
                     <select
                       value={form.category}
                       onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className={cls(
+                        "rounded-2xl border px-3 py-2.5 text-sm",
+                        darkMode
+                          ? "border-slate-700 bg-slate-950 text-white"
+                          : "border-slate-200 bg-white text-slate-900"
+                      )}
                     >
                       {[
                         "Salary",
@@ -725,16 +842,19 @@ function App() {
                         "Education",
                         "Investments",
                       ].map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
+                        <option key={c} value={c}>{c}</option>
                       ))}
                     </select>
 
                     <select
                       value={form.type}
                       onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className={cls(
+                        "rounded-2xl border px-3 py-2.5 text-sm",
+                        darkMode
+                          ? "border-slate-700 bg-slate-950 text-white"
+                          : "border-slate-200 bg-white text-slate-900"
+                      )}
                     >
                       <option value="income">Income</option>
                       <option value="expense">Expense</option>
@@ -746,14 +866,22 @@ function App() {
                   <div className="flex gap-3">
                     <button
                       type="submit"
-                      className="flex-1 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                      className={cls(
+                        "flex-1 rounded-2xl px-4 py-2.5 text-sm font-medium",
+                        darkMode
+                          ? "bg-white text-slate-900 hover:bg-slate-200"
+                          : "bg-slate-900 text-white hover:bg-slate-800"
+                      )}
                     >
                       {editingId ? "Update" : "Add transaction"}
                     </button>
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm dark:border-slate-700"
+                      className={cls(
+                        "rounded-2xl border px-4 py-2.5 text-sm",
+                        darkMode ? "border-slate-700" : "border-slate-200"
+                      )}
                     >
                       Reset
                     </button>
@@ -762,29 +890,49 @@ function App() {
               )}
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70">
+            <div
+              className={cls(
+                "rounded-3xl border p-5 shadow-sm",
+                darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+              )}
+            >
               <div className="mb-4">
                 <h2 className="text-lg font-semibold">Insights</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
                   Simple observations generated from current data.
                 </p>
               </div>
 
               <div className="space-y-3">
                 {insights.map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-800">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{item.title}</p>
+                  <div
+                    key={item.title}
+                    className={cls(
+                      "rounded-2xl border p-4",
+                      darkMode ? "border-slate-800" : "border-slate-200"
+                    )}
+                  >
+                    <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
+                      {item.title}
+                    </p>
                     <h3 className="mt-1 text-lg font-semibold">{item.value}</h3>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{item.note}</p>
+                    <p className={cls("mt-1 text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
+                      {item.note}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/70 p-5 shadow-sm dark:bg-slate-900/70">
+            <div
+              className={cls(
+                "rounded-3xl border p-5 shadow-sm",
+                darkMode ? "border-white/10 bg-slate-900/70" : "border-slate-200 bg-white/70"
+              )}
+            >
               <div className="mb-4">
                 <h2 className="text-lg font-semibold">Income vs Expense</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className={cls("text-sm", darkMode ? "text-slate-400" : "text-slate-500")}>
                   Monthly totals for income and expenses.
                 </p>
               </div>
@@ -806,6 +954,7 @@ function App() {
                 <EmptyState
                   title="No comparison data"
                   description="Monthly insights will appear once transactions are available."
+                  darkMode={darkMode}
                 />
               )}
             </div>
